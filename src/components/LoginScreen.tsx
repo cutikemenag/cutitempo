@@ -21,7 +21,20 @@ const LoginScreen = () => {
       const auth = getAuth(app);
       await signInWithEmailAndPassword(auth, email, password);
     } catch (err: any) {
-      setError("Email atau password salah");
+      console.error("Auth error:", err);
+      if (err.code === "auth/unauthorized-domain") {
+        setError("Domain tidak diizinkan. Silakan hubungi administrator.");
+      } else if (err.code === "auth/invalid-email") {
+        setError("Email tidak valid");
+      } else if (err.code === "auth/user-disabled") {
+        setError("Akun telah dinonaktifkan");
+      } else if (err.code === "auth/user-not-found") {
+        setError("Email tidak terdaftar");
+      } else if (err.code === "auth/wrong-password") {
+        setError("Password salah");
+      } else {
+        setError("Terjadi kesalahan: " + err.message);
+      }
     } finally {
       setLoading(false);
     }
