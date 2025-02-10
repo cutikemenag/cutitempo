@@ -5,12 +5,14 @@ import { Button } from "./ui/button";
 import { Label } from "./ui/label";
 import { signInWithEmailAndPassword } from "firebase/auth";
 import { auth } from "@/lib/firebase";
+import { useNavigate } from "react-router-dom";
 
 const LoginScreen = () => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
+  const navigate = useNavigate();
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -20,6 +22,7 @@ const LoginScreen = () => {
     try {
       await signInWithEmailAndPassword(auth, email, password);
       console.log("Login successful");
+      navigate("/");
     } catch (err: any) {
       console.error("Auth error:", err);
       if (err.code === "auth/unauthorized-domain") {
