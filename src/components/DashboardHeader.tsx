@@ -2,8 +2,7 @@ import React from "react";
 import { Button } from "./ui/button";
 import { Avatar, AvatarFallback, AvatarImage } from "./ui/avatar";
 import { Bell, LogOut, Menu, Plus } from "lucide-react";
-import { getAuth } from "firebase/auth";
-import { app } from "@/lib/firebase";
+import { auth } from "@/lib/firebase";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -24,8 +23,8 @@ const DashboardHeader = ({
   adminName = "Admin User",
   adminRole = "System Administrator",
   onLogout = () => {
-    const auth = getAuth(app);
     auth.signOut();
+    console.log("Logged out");
   },
   onMenuClick = () => console.log("Menu clicked"),
 }: DashboardHeaderProps) => {

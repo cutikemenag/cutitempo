@@ -3,8 +3,8 @@ import { Card, CardContent, CardHeader, CardTitle } from "./ui/card";
 import { Input } from "./ui/input";
 import { Button } from "./ui/button";
 import { Label } from "./ui/label";
-import { getAuth, signInWithEmailAndPassword } from "firebase/auth";
-import { app } from "@/lib/firebase";
+import { signInWithEmailAndPassword } from "firebase/auth";
+import { auth } from "@/lib/firebase";
 
 const LoginScreen = () => {
   const [email, setEmail] = useState("");
@@ -18,8 +18,8 @@ const LoginScreen = () => {
     setLoading(true);
 
     try {
-      const auth = getAuth(app);
       await signInWithEmailAndPassword(auth, email, password);
+      console.log("Login successful");
     } catch (err: any) {
       console.error("Auth error:", err);
       if (err.code === "auth/unauthorized-domain") {
