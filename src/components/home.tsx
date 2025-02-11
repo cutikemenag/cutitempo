@@ -1,14 +1,39 @@
 import React, { useState } from "react";
-import DashboardHeader from "./DashboardHeader";
 import FilterSection from "./FilterSection";
 import EmployeeLeaveTable from "./EmployeeLeaveTable";
 import LeaveCardDialog from "./LeaveCardDialog";
-import LeaveCardDetails from "./LeaveCardDetails";
+import PrintLeaveCard from "./PrintLeaveCard";
+import { Search } from "lucide-react";
+import { Input } from "./ui/input";
+
+const SearchBar = ({ onSearch }: { onSearch: (query: string) => void }) => {
+  const [searchQuery, setSearchQuery] = useState("");
+
+  const handleSearch = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const query = e.target.value;
+    setSearchQuery(query);
+    onSearch(query);
+  };
+
+  return (
+    <div className="relative">
+      <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-gray-500" />
+      <Input
+        placeholder="Cari pegawai..."
+        className="w-[300px] pl-9"
+        value={searchQuery}
+        onChange={handleSearch}
+      />
+    </div>
+  );
+};
 
 const Home = () => {
   const [showLeaveCardDialog, setShowLeaveCardDialog] = useState(false);
-  const [showLeaveCardDetails, setShowLeaveCardDetails] = useState(false);
-  const [selectedLeaveId, setSelectedLeaveId] = useState<string | null>(null);
+  const [showPrintLeaveCard, setShowPrintLeaveCard] = useState(false);
+  const [selectedEmployeeId, setSelectedEmployeeId] = useState<string | null>(
+    null,
+  );
   const [dialogMode, setDialogMode] = useState<"add" | "edit">("add");
 
   const handleAddNew = () => {
@@ -17,19 +42,14 @@ const Home = () => {
   };
 
   const handleEdit = (id: string) => {
-    setSelectedLeaveId(id);
+    setSelectedEmployeeId(id);
     setDialogMode("edit");
     setShowLeaveCardDialog(true);
   };
 
-  const handleView = (id: string) => {
-    setSelectedLeaveId(id);
-    setShowLeaveCardDetails(true);
-  };
-
-  const handleDelete = (id: string) => {
-    // Implement delete functionality
-    console.log("Delete leave card:", id);
+  const handlePrintLeaveCard = (id: string) => {
+    setSelectedEmployeeId(id);
+    setShowPrintLeaveCard(true);
   };
 
   const handleSearch = (query: string) => {
@@ -45,36 +65,36 @@ const Home = () => {
   };
 
   return (
-    <div className="min-h-screen bg-gray-100">
-      <DashboardHeader />
+    <div>
+      <div className="mb-6 flex items-center justify-between">
+        <h1 className="text-2xl font-bold">Data Pegawai</h1>
+        <SearchBar onSearch={handleSearch} />
+      </div>
 
-      <main className="container mx-auto py-6 px-4">
-        <FilterSection
-          onSearch={handleSearch}
-          onFilterChange={handleFilterChange}
-          onExport={handleExport}
-          onAddNew={handleAddNew}
+      <FilterSection
+        onSearch={handleSearch}
+        onFilterChange={handleFilterChange}
+        onExport={handleExport}
+        onAddNew={handleAddNew}
+      />
+
+      <div className="mt-6">
+        <EmployeeLeaveTable
+          onEdit={handleEdit}
+          onPrintLeaveCard={handlePrintLeaveCard}
         />
+      </div>
 
-        <div className="mt-6">
-          <EmployeeLeaveTable
-            onView={handleView}
-            onEdit={handleEdit}
-            onDelete={handleDelete}
-          />
-        </div>
+      <LeaveCardDialog
+        open={showLeaveCardDialog}
+        onOpenChange={setShowLeaveCardDialog}
+        mode={dialogMode}
+      />
 
-        <LeaveCardDialog
-          open={showLeaveCardDialog}
-          onOpenChange={setShowLeaveCardDialog}
-          mode={dialogMode}
-        />
-
-        <LeaveCardDetails
-          open={showLeaveCardDetails}
-          onOpenChange={setShowLeaveCardDetails}
-        />
-      </main>
+      <PrintLeaveCard
+        open={showPrintLeaveCard}
+        onOpenChange={setShowPrintLeaveCard}
+      />
     </div>
   );
 };

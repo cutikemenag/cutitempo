@@ -3,29 +3,45 @@ import { Card, CardContent, CardHeader, CardTitle } from "./ui/card";
 import { Input } from "./ui/input";
 import { Button } from "./ui/button";
 import { Label } from "./ui/label";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "./ui/tabs";
 import { signInWithEmailAndPassword } from "firebase/auth";
 import { auth } from "@/lib/firebase";
 import { useNavigate } from "react-router-dom";
 
 const LoginScreen = () => {
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
+  const [adminForm, setAdminForm] = useState({ email: "", password: "" });
+  const [employeeForm, setEmployeeForm] = useState({ email: "", password: "" });
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
 
-  const handleLogin = async (e: React.FormEvent) => {
+  const handleLogin = async (e: React.FormEvent, isAdmin: boolean) => {
     e.preventDefault();
     setError("");
     setLoading(true);
 
+    const { email, password } = isAdmin ? adminForm : employeeForm;
+
     try {
-      await signInWithEmailAndPassword(auth, email, password);
+      const userCredential = await signInWithEmailAndPassword(
+        auth,
+        email,
+        password,
+      );
+      const user = userCredential.user;
+      const isUserAdmin = user.email?.endsWith("@tolopani.net") || false;
+
+      if (isAdmin && !isUserAdmin) {
+        throw new Error("Unauthorized access to admin panel");
+      }
+
       console.log("Login successful");
-      navigate("/");
+      navigate(isAdmin ? "/" : "/employee");
     } catch (err: any) {
       console.error("Auth error:", err);
-      if (err.code === "auth/unauthorized-domain") {
+      if (err.message === "Unauthorized access to admin panel") {
+        setError("Anda tidak memiliki akses ke panel admin");
+      } else if (err.code === "auth/unauthorized-domain") {
         setError("Domain tidak diizinkan. Silakan hubungi administrator.");
       } else if (err.code === "auth/invalid-email") {
         setError("Email tidak valid");
@@ -43,41 +59,79 @@ const LoginScreen = () => {
     }
   };
 
+  const LoginForm = ({ isAdmin }: { isAdmin: boolean }) => {
+    const { email, password } = isAdmin ? adminForm : employeeForm;
+    const setForm = isAdmin ? setAdminForm : setEmployeeForm;
+
+    return (
+      <form onSubmit={(e) => handleLogin(e, isAdmin)} className="space-y-4">
+        <div className="space-y-2">
+          <Label htmlFor={isAdmin ? "admin-email" : "employee-email"}>
+            Email
+          </Label>
+          <Input
+            id={isAdmin ? "admin-email" : "employee-email"}
+            type="email"
+            placeholder={`Masukkan email ${isAdmin ? "admin" : "pegawai"}`}
+            value={email}
+            onChange={(e) =>
+              setForm((prev) => ({ ...prev, email: e.target.value }))
+            }
+            className="focus:outline-none"
+            required
+            autoComplete={isAdmin ? "admin-email" : "employee-email"}
+          />
+        </div>
+        <div className="space-y-2">
+          <Label htmlFor={isAdmin ? "admin-password" : "employee-password"}>
+            Password
+          </Label>
+          <Input
+            id={isAdmin ? "admin-password" : "employee-password"}
+            type="password"
+            placeholder="Masukkan password"
+            value={password}
+            onChange={(e) =>
+              setForm((prev) => ({ ...prev, password: e.target.value }))
+            }
+            className="focus:outline-none"
+            required
+            autoComplete={
+              isAdmin ? "admin-current-password" : "current-password"
+            }
+          />
+        </div>
+        {error && <p className="text-sm text-red-500">{error}</p>}
+        <Button type="submit" className="w-full" disabled={loading}>
+          {loading ? "Memuat..." : "Masuk"}
+        </Button>
+      </form>
+    );
+  };
+
   return (
     <div className="min-h-screen bg-gray-100 flex items-center justify-center p-4">
       <Card className="w-full max-w-md bg-white">
         <CardHeader className="text-center">
-          <CardTitle className="text-2xl font-bold">Login Admin</CardTitle>
+          <CardTitle className="text-2xl font-bold">
+            Sistem Kartu Cuti
+          </CardTitle>
         </CardHeader>
         <CardContent>
-          <form onSubmit={handleLogin} className="space-y-4">
-            <div className="space-y-2">
-              <Label htmlFor="email">Email</Label>
-              <Input
-                id="email"
-                type="email"
-                placeholder="Masukkan email"
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-                required
-              />
+          <Tabs defaultValue="employee" className="w-full">
+            <TabsList className="grid w-full grid-cols-2 mb-4">
+              <TabsTrigger value="employee">Pegawai</TabsTrigger>
+              <TabsTrigger value="admin">Admin</TabsTrigger>
+            </TabsList>
+            <div className="mt-4 outline-none">
+              <TabsContent value="employee" className="outline-none mt-0">
+                <LoginForm isAdmin={false} />
+              </TabsContent>
+              <TabsContent value="admin" className="outline-none mt-0">
+                <LoginForm isAdmin={true} />
+              </TabsContent>
             </div>
-            <div className="space-y-2">
-              <Label htmlFor="password">Password</Label>
-              <Input
-                id="password"
-                type="password"
-                placeholder="Masukkan password"
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
-                required
-              />
-            </div>
-            {error && <p className="text-sm text-red-500">{error}</p>}
-            <Button type="submit" className="w-full" disabled={loading}>
-              {loading ? "Memuat..." : "Masuk"}
-            </Button>
-          </form>
+          </Tabs>
         </CardContent>
       </Card>
     </div>

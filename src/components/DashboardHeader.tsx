@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState } from "react";
 import { Button } from "./ui/button";
 import { Avatar, AvatarFallback, AvatarImage } from "./ui/avatar";
 import { Bell, LogOut, Menu, Plus } from "lucide-react";
@@ -19,6 +19,8 @@ interface DashboardHeaderProps {
   onMenuClick?: () => void;
 }
 
+import AddEmployeeDialog from "./AddEmployeeDialog";
+
 const DashboardHeader = ({
   adminName = "Admin User",
   adminRole = "System Administrator",
@@ -28,6 +30,7 @@ const DashboardHeader = ({
   },
   onMenuClick = () => console.log("Menu clicked"),
 }: DashboardHeaderProps) => {
+  const [showAddEmployee, setShowAddEmployee] = useState(false);
   return (
     <header className="w-full h-20 bg-white border-b border-gray-200 px-4 flex items-center justify-between">
       <div className="flex items-center gap-4">
@@ -79,7 +82,7 @@ const DashboardHeader = ({
           <DropdownMenuContent align="end" className="w-56">
             <DropdownMenuLabel>Menu</DropdownMenuLabel>
             <DropdownMenuSeparator />
-            <DropdownMenuItem>
+            <DropdownMenuItem onClick={() => setShowAddEmployee(true)}>
               <Plus className="mr-2 h-4 w-4" />
               <span>Tambah Pegawai</span>
             </DropdownMenuItem>
@@ -91,6 +94,10 @@ const DashboardHeader = ({
           </DropdownMenuContent>
         </DropdownMenu>
       </div>
+      <AddEmployeeDialog
+        open={showAddEmployee}
+        onOpenChange={setShowAddEmployee}
+      />
     </header>
   );
 };
