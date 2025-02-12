@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useCallback } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "./ui/card";
 import { Input } from "./ui/input";
 import { Button } from "./ui/button";
@@ -63,6 +63,13 @@ const LoginScreen = () => {
     const { email, password } = isAdmin ? adminForm : employeeForm;
     const setForm = isAdmin ? setAdminForm : setEmployeeForm;
 
+    const handleChange = useCallback(
+      (field: "email" | "password", value: string) => {
+        setForm((prev) => ({ ...prev, [field]: value }));
+      },
+      [setForm],
+    );
+
     return (
       <form onSubmit={(e) => handleLogin(e, isAdmin)} className="space-y-4">
         <div className="space-y-2">
@@ -74,10 +81,7 @@ const LoginScreen = () => {
             type="email"
             placeholder={`Masukkan email ${isAdmin ? "admin" : "pegawai"}`}
             value={email}
-            onChange={(e) =>
-              setForm((prev) => ({ ...prev, email: e.target.value }))
-            }
-            className="focus:outline-none"
+            onChange={(e) => handleChange("email", e.target.value)}
             required
             autoComplete={isAdmin ? "admin-email" : "employee-email"}
           />
@@ -91,10 +95,7 @@ const LoginScreen = () => {
             type="password"
             placeholder="Masukkan password"
             value={password}
-            onChange={(e) =>
-              setForm((prev) => ({ ...prev, password: e.target.value }))
-            }
-            className="focus:outline-none"
+            onChange={(e) => handleChange("password", e.target.value)}
             required
             autoComplete={
               isAdmin ? "admin-current-password" : "current-password"
@@ -123,11 +124,11 @@ const LoginScreen = () => {
               <TabsTrigger value="employee">Pegawai</TabsTrigger>
               <TabsTrigger value="admin">Admin</TabsTrigger>
             </TabsList>
-            <div className="mt-4 outline-none">
-              <TabsContent value="employee" className="outline-none mt-0">
+            <div className="mt-4">
+              <TabsContent value="employee" className="mt-0">
                 <LoginForm isAdmin={false} />
               </TabsContent>
-              <TabsContent value="admin" className="outline-none mt-0">
+              <TabsContent value="admin" className="mt-0">
                 <LoginForm isAdmin={true} />
               </TabsContent>
             </div>
