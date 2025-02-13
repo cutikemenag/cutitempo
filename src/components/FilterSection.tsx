@@ -73,10 +73,10 @@ const FilterSection = ({
             Export PDF
           </Button>
 
-          {/* Add New Button */}
+          {/* Add New Employee Button */}
           <Button onClick={onAddNew} className="flex items-center gap-2">
             <Plus className="h-4 w-4" />
-            Tambah Kartu Cuti
+            Tambah Pegawai
           </Button>
         </div>
       </div>

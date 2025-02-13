@@ -3,6 +3,7 @@ import { useRoutes, Routes, Route, Navigate } from "react-router-dom";
 import Home from "./components/home";
 import LoginScreen from "./components/LoginScreen";
 import EmployeeDashboard from "./components/EmployeeDashboard";
+import EmployeeLayout from "./components/layouts/EmployeeLayout";
 import LeaveManagement from "./components/admin/LeaveManagement";
 import Reports from "./components/admin/Reports";
 import Settings from "./components/admin/Settings";
@@ -51,15 +52,21 @@ function App() {
               <Route path="settings" element={<Settings />} />
             </Route>
 
-            {/* Employee Route */}
+            {/* Employee Routes */}
             <Route
-              path="employee"
               element={
                 <ProtectedRoute requireAdmin={false}>
-                  <EmployeeDashboard />
+                  <EmployeeLayout />
                 </ProtectedRoute>
               }
-            />
+            >
+              <Route path="employee" element={<EmployeeDashboard />} />
+              <Route path="employee/history" element={<EmployeeDashboard />} />
+              <Route
+                path="employee/profile"
+                element={<div>Profile Page</div>}
+              />
+            </Route>
           </Routes>
           {import.meta.env.VITE_TEMPO === "true" && useRoutes(routes)}
         </>

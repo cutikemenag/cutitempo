@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import FilterSection from "./FilterSection";
-import EmployeeLeaveTable from "./EmployeeLeaveTable";
-import LeaveCardDialog from "./LeaveCardDialog";
+import EmployeeList from "./EmployeeList";
+import AddEmployeeDialog from "./AddEmployeeDialog";
 import PrintLeaveCard from "./PrintLeaveCard";
 import { Search } from "lucide-react";
 import { Input } from "./ui/input";
@@ -29,7 +29,7 @@ const SearchBar = ({ onSearch }: { onSearch: (query: string) => void }) => {
 };
 
 const Home = () => {
-  const [showLeaveCardDialog, setShowLeaveCardDialog] = useState(false);
+  const [showAddEmployeeDialog, setShowAddEmployeeDialog] = useState(false);
   const [showPrintLeaveCard, setShowPrintLeaveCard] = useState(false);
   const [selectedEmployeeId, setSelectedEmployeeId] = useState<string | null>(
     null,
@@ -37,8 +37,7 @@ const Home = () => {
   const [dialogMode, setDialogMode] = useState<"add" | "edit">("add");
 
   const handleAddNew = () => {
-    setDialogMode("add");
-    setShowLeaveCardDialog(true);
+    setShowAddEmployeeDialog(true);
   };
 
   const handleEdit = (id: string) => {
@@ -79,16 +78,12 @@ const Home = () => {
       />
 
       <div className="mt-6">
-        <EmployeeLeaveTable
-          onEdit={handleEdit}
-          onPrintLeaveCard={handlePrintLeaveCard}
-        />
+        <EmployeeList />
       </div>
 
-      <LeaveCardDialog
-        open={showLeaveCardDialog}
-        onOpenChange={setShowLeaveCardDialog}
-        mode={dialogMode}
+      <AddEmployeeDialog
+        open={showAddEmployeeDialog}
+        onOpenChange={setShowAddEmployeeDialog}
       />
 
       <PrintLeaveCard

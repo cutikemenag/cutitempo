@@ -10,7 +10,9 @@ import { Button } from "./ui/button";
 import { Input } from "./ui/input";
 import { Label } from "./ui/label";
 import { createUserWithEmailAndPassword } from "firebase/auth";
-import { auth } from "@/lib/firebase";
+import { auth, db } from "@/lib/firebase";
+import { collection, addDoc, serverTimestamp } from "firebase/firestore";
+import { useNavigate } from "react-router-dom";
 
 interface AddEmployeeDialogProps {
   open: boolean;
@@ -18,6 +20,7 @@ interface AddEmployeeDialogProps {
 }
 
 const AddEmployeeDialog = ({ open, onOpenChange }: AddEmployeeDialogProps) => {
+  const navigate = useNavigate();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [name, setName] = useState("");
@@ -38,13 +41,37 @@ const AddEmployeeDialog = ({ open, onOpenChange }: AddEmployeeDialogProps) => {
     }
 
     try {
-      await createUserWithEmailAndPassword(auth, email, password);
-      // Here you would typically also save additional user data to your database
+      const userCredential = await createUserWithEmailAndPassword(
+        auth,
+        email,
+        password,
+      );
+
+      // Save additional user data to Firestore
+      const usersRef = collection(db, "users");
+      await addDoc(usersRef, {
+        uid: userCredential.user.uid,
+        email,
+        name,
+        nip,
+        department: "Administrasi", // Default department
+        role: "employee",
+        createdAt: serverTimestamp(),
+        leaveBalances: {
+          tahunan: { total: 12, used: 0 },
+          sakit: { total: 14, used: 0 },
+          penting: { total: 10, used: 0 },
+        },
+      });
+
       onOpenChange(false);
       setEmail("");
       setPassword("");
       setName("");
       setNip("");
+
+      // Navigate to Data Pegawai page
+      navigate("/");
     } catch (err: any) {
       console.error("Error creating user:", err);
       setError(err.message);

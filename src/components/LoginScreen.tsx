@@ -1,4 +1,4 @@
-import React, { useState, useCallback } from "react";
+import React, { useState } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "./ui/card";
 import { Input } from "./ui/input";
 import { Button } from "./ui/button";
@@ -60,15 +60,16 @@ const LoginScreen = () => {
   };
 
   const LoginForm = ({ isAdmin }: { isAdmin: boolean }) => {
-    const { email, password } = isAdmin ? adminForm : employeeForm;
-    const setForm = isAdmin ? setAdminForm : setEmployeeForm;
+    const formData = isAdmin ? adminForm : employeeForm;
 
-    const handleChange = useCallback(
-      (field: "email" | "password", value: string) => {
-        setForm((prev) => ({ ...prev, [field]: value }));
-      },
-      [setForm],
-    );
+    const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+      const { name, value } = e.target;
+      if (isAdmin) {
+        setAdminForm((prev) => ({ ...prev, [name]: value }));
+      } else {
+        setEmployeeForm((prev) => ({ ...prev, [name]: value }));
+      }
+    };
 
     return (
       <form onSubmit={(e) => handleLogin(e, isAdmin)} className="space-y-4">
@@ -78,10 +79,11 @@ const LoginScreen = () => {
           </Label>
           <Input
             id={isAdmin ? "admin-email" : "employee-email"}
+            name="email"
             type="email"
             placeholder={`Masukkan email ${isAdmin ? "admin" : "pegawai"}`}
-            value={email}
-            onChange={(e) => handleChange("email", e.target.value)}
+            defaultValue={formData.email}
+            onChange={handleChange}
             required
             autoComplete={isAdmin ? "admin-email" : "employee-email"}
           />
@@ -92,10 +94,11 @@ const LoginScreen = () => {
           </Label>
           <Input
             id={isAdmin ? "admin-password" : "employee-password"}
+            name="password"
             type="password"
             placeholder="Masukkan password"
-            value={password}
-            onChange={(e) => handleChange("password", e.target.value)}
+            defaultValue={formData.password}
+            onChange={handleChange}
             required
             autoComplete={
               isAdmin ? "admin-current-password" : "current-password"
